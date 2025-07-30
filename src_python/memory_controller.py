@@ -4,7 +4,7 @@ from math import ceil
 
 class MemoryController:
     def __init__(self, port, num_blocks=16, hex_data_path="build/data.hex"):
-        self.__serial = Serial(port, 115200, timeout=2)
+        self.__serial = Serial(port, 115200, timeout=1)
         self.__data = []
         self.__data_path = hex_data_path
         raw_data = open(hex_data_path).read().split("\n")
@@ -16,6 +16,9 @@ class MemoryController:
         self.reset()
 
     def read(self, block, addr, size):
+        self.__serial.reset_input_buffer()
+        self.__serial.reset_output_buffer()
+
         block_byte = block.to_bytes(1, 'big')
         addr_byte = addr.to_bytes(1, 'big')
         # subtract 1 from the size so that we  can send between 1 and 2^n values, not 0 to 2^n -1
@@ -33,6 +36,9 @@ class MemoryController:
         return b
     
     def write(self, block, addr, data_str):
+        self.__serial.reset_input_buffer()
+        self.__serial.reset_output_buffer()
+        
         # set  the second bit to 1 to indicate we are writing
         first_byte_dec = 64 + block
         first_byte = first_byte_dec.to_bytes(1, 'big')

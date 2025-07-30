@@ -27,7 +27,7 @@ def get_hex_input():
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-device = config['DEFAULT']['device']
+device = config['DEVICE']['device_type']
 if device == "hx1k":
     num_blocks = 16
 elif device == "up5k":
@@ -35,7 +35,7 @@ elif device == "up5k":
 else:
     raise ValueError(f"Device not supported: {device}. Use hx1k or up5k")
 
-mc = MemoryController(config['DEFAULT']['fpga_port'], num_blocks=num_blocks)
+mc = MemoryController(config['DEVICE']['fpga_port'], num_blocks=num_blocks)
 
 while True:
     mode = input("(R)ead, (W)rite, (T)riger warmboot, (S)ave current state to file: ").upper()
