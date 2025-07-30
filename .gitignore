@@ -1,0 +1,12 @@
+*.bin
+*.json
+*.asc
+*.csv
+*.hex
+*.vcd
+*.sim
+*.pyc
+*.svg
+*.dot
+*.profile
+*.txt
