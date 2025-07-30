@@ -33,3 +33,21 @@ Python files:
 - pre_place.py: script run before nextpnr's placement to place each bram block on a specific tile 
 - get_bram_locations.py : output where each BRAM block got placed to make sure placement went right
 - generate_bram.py: generate bram to be used for debugging
+
+Script to build pico-ice-sdk:
+```bash
+apt install libusb-1.0-0
+apt install gcc-arm-none-eabi
+
+git submodule update --init 
+cd lib/pico-ice-sdk && git submodule update --init
+cd lib/pico-sdk && git submodule update --init
+cd ../../../..
+```
+
+For linking pico-ice-sdk in firmware_builder:
+```bash
+ln -s lib/pico-ice-sdk/ firmware_builder
+ln -s lib/pico-ice-sdk/lib/pico-sdk/ firmware_builder
+```
+
