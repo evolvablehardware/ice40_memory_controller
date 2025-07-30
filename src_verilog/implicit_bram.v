@@ -12,7 +12,7 @@ localparam NUM_BITS = $clog2(NUM_BLOCKS);
 reg [15:0] memory [0:256*NUM_BLOCKS - 1];
 
 initial begin
-   $readmemh("temp/data.hex", memory);
+   $readmemh("build/data.hex", memory);
 end
 
 always @(posedge clk)

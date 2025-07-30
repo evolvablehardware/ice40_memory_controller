@@ -41,7 +41,7 @@ df['Time (microseconds)'] = 0
 df['Accuracy'] = 0
 
 # recompile and upload to fpga
-# run(["iceprog", "temp/controller.bin"])
+# run(["iceprog", "build/controller.bin"])
 
 # set up memory controller
 mc = MemoryController("/dev/ttyACM1")

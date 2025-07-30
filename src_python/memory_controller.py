@@ -3,12 +3,12 @@ from time import sleep
 from math import ceil
 
 class MemoryController:
-    def __init__(self, port, hex_data_path="temp/data.hex"):
+    def __init__(self, port, num_blocks=16, hex_data_path="build/data.hex"):
         self.__serial = Serial(port, 115200, timeout=2)
         self.__data = []
         self.__data_path = hex_data_path
         raw_data = open(hex_data_path).read().split("\n")
-        for i in range(16):
+        for i in range(num_blocks):
             self.__data.append([])
             for j in range(256):
                 self.__data[i].append(raw_data[i*256 + j])

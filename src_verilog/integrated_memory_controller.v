@@ -1,3 +1,11 @@
+`ifndef NUM_BLOCKS_PARAM
+    `define NUM_BLOCKS_PARAM 16
+`endif
+
+`ifndef CLOCK_SPEED
+    `define CLOCK_SPEED 12_000_000
+`endif
+
 module integrated_memory_controller (
 input               clk     , // Top level system clock input.
 input   wire        uart_rxd, // UART Recieve pin.
@@ -7,12 +15,12 @@ output wire [2:0] leds
 );
 
 // Clock frequency in hertz.
-parameter CLK_HZ = 12_000_000;
+parameter CLK_HZ = `CLOCK_SPEED;
 parameter BIT_RATE =   115200;
 parameter PAYLOAD_BITS = 8;
 
 // Number of EBRs to initialize
-parameter NUM_BLOCKS = 16;
+parameter NUM_BLOCKS = `NUM_BLOCKS_PARAM;
 parameter NUM_BITS = $clog2(NUM_BLOCKS);
 
 // wires for receiver

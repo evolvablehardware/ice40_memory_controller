@@ -1,5 +1,5 @@
 `ifndef BRAM_INCLUDE_FILE
-    `define BRAM_INCLUDE_FILE "temp/generated_rams.vh"
+    `define BRAM_INCLUDE_FILE "build/generated_rams.vh"
 `endif
 
 module bram(input wire clk, 

@@ -27,14 +27,22 @@ def get_hex_input():
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-mc = MemoryController(config['DEFAULT']['fpga_port'])
+device = config['DEFAULT']['device']
+if device == "hx1k":
+    num_blocks = 16
+elif device == "up5k":
+    num_blocks = 30
+else:
+    raise ValueError(f"Device not supported: {device}. Use hx1k or up5k")
+
+mc = MemoryController(config['DEFAULT']['fpga_port'], num_blocks=num_blocks)
 
 while True:
     mode = input("(R)ead, (W)rite, (T)riger warmboot, (S)ave current state to file: ").upper()
 
     if mode == "R" or mode == "W":
         # Memory block to read from
-        block = get_int_input("Block", 0, 15)
+        block = get_int_input("Block", 0, num_blocks-1)
 
         # 8-bit address to read from
         addr = get_int_input("Address", 0, 255)
