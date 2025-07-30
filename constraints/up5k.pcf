@@ -1,7 +1,3 @@
-# set_io --warn-no-port clk 21
-# set_io --warn-no-port uart_txd  8
-# set_io --warn-no-port uart_rxd  9
-# set_io --warn-no-port resetn 7
 set_io --warn-no-port clk 35
 set_io --warn-no-port uart_txd  25
 set_io --warn-no-port uart_rxd  27
