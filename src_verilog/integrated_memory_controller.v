@@ -7,7 +7,7 @@ output wire [2:0] leds
 );
 
 // Clock frequency in hertz.
-parameter CLK_HZ = 48_000_000;
+parameter CLK_HZ = 12_000_000;
 parameter BIT_RATE =   115200;
 parameter PAYLOAD_BITS = 8;
 
@@ -32,7 +32,6 @@ wire [15:0] ib_data_out;
 wire [15:0] ib_data_in;
 wire rd_en;
 wire wr_en;
-wire ib_valid_out;
 
 wire boot;
 
@@ -102,15 +101,14 @@ uart_tx #(
 //-------------------------------------------------------------------------
 // Memory blocks
 //-------------------------------------------------------------------------
-bram #(.NUM_BLOCKS(NUM_BLOCKS), .FILE("temp/data.hex")) bram_inst (
+bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
 .clk(clk), 
 .rd_en(rd_en), 
 .wr_en(wr_en), 
 .rd_addr({mem_select, ib_addr}), 
 .wr_addr({mem_select, ib_addr}), 
 .data_in(ib_data_in), 
-.data_out(ib_data_out),
-.valid_out(ib_valid_out)
+.data_out(ib_data_out)
 );
 
 //-------------------------------------------------------------------------
