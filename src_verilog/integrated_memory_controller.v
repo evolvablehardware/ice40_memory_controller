@@ -41,6 +41,16 @@ wire [15:0] ib_data_in;
 wire rd_en;
 wire wr_en;
 
+wire [13:0] sp_addr;
+wire [15:0] sp_data_out;
+
+wire bram_or_spram;
+wire [15:0] data_out;
+
+`ifndef USE_SPRAM
+    assign data_out = ib_data_out;
+`endif
+
 wire boot;
 
 //-------------------------------------------------------------------------
@@ -52,7 +62,7 @@ controller #(.MEM_SELECT_BITS(NUM_BITS)) i_controller(
     .uart_rx_valid(uart_rx_valid),
     .receive_data(uart_rx_data),
     .uart_tx_busy(uart_tx_busy),
-    .mem_out(ib_data_out),
+    .mem_out(data_out),
     .uart_tx_en(uart_tx_en),
     .uart_tx_data(uart_tx_data),
     .mem_select(mem_select),
@@ -61,7 +71,9 @@ controller #(.MEM_SELECT_BITS(NUM_BITS)) i_controller(
     .rd_en(rd_en),
     .wr_en(wr_en),
     .warmboot(boot),
-    .leds(leds)
+    .leds(leds),
+    .bram_or_spram(bram_or_spram),
+    .sp_addr(sp_addr)
 );
 
 // //-------------------------------------------------------------------------
@@ -118,6 +130,19 @@ bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
 .data_in(ib_data_in), 
 .data_out(ib_data_out)
 );
+
+`ifdef USE_SPRAM
+    assign data_out = (bram_or_spram == 0) ? ib_data_out : sp_data_out;
+
+    spram spram_inst (
+    .clk(clk),  
+    .wr_en(wr_en), 
+    .cs(mem_select[1:0]),
+    .addr(sp_addr), 
+    .data_in(ib_data_in), 
+    .data_out(sp_data_out)
+    );
+`endif
 
 //-------------------------------------------------------------------------
 // Warmboot primitive

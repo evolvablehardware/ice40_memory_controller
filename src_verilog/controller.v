@@ -46,7 +46,9 @@ module controller(
     output wire rd_en,
     output wire wr_en,
     output reg warmboot,
-    output wire [2:0] leds
+    output wire [2:0] leds,
+    output reg bram_or_spram,
+    output wire [13:0] sp_addr
 );
 parameter MEM_SELECT_BITS = 4;
 
@@ -54,7 +56,7 @@ parameter MEM_SELECT_BITS = 4;
 // State variables
 //-------------------------------------------------------------------------
 // using current + next versions allows us to have the variable keep its value w/out needing combinatorial loops/latches
-reg [3:0] CurrentState, NextState;
+reg [5:0] CurrentState, NextState;
 reg [8:0] CurrentAddrOffset, NextAddrOffset;
 reg [7:0] CurrentSize, NextSize;
 reg [7:0] CurrentAddr, NextAddr;
@@ -62,25 +64,30 @@ reg CurrentRDorWR, NextRDorWR;
 reg [MEM_SELECT_BITS-1:0] NextBlockSelect;
 reg [15:0] NextWriteBuffer;
 reg NextWarmboot;
+reg NextBRorSP;
+reg [13:0] CurrentSpAddr, NextSpAddr;
 
 //-------------------------------------------------------------------------
 // Parameters for the states
 //-------------------------------------------------------------------------
 // states both reading and writing operations go through
-parameter COMMAND = 4'd0, ADDR = 4'd1, SIZE=4'd14;
+parameter COMMAND = 5'd0, ADDR = 5'd1, SIZE=5'd14;
 // states for reading. Read mem, then transmit the high and low bytes
 // setup states enable transmission and set uart_tx_data
-parameter READ_MEM = 4'd2, T_SETUP_HIGH = 4'd3, T_HIGH = 4'd4, T_SETUP_LOW = 4'd5, T_LOW = 4'd6;
+parameter READ_MEM = 5'd2, T_SETUP_HIGH = 5'd3, T_HIGH = 5'd4, T_SETUP_LOW = 5'd5, T_LOW = 5'd6;
 // states for writing. Recive high and low bytes, and then put them into memory
-parameter RX_HIGH = 4'd7, RX_LOW = 4'd8, WRITE_MEM = 4'd9;
+parameter RX_HIGH = 5'd7, RX_LOW = 5'd8, WRITE_MEM = 5'd9;
 // states for stalling to make sure we don't 'skip' a state on one pulse of uart_rx_valid
 // then states are switched to when uart_rx_valid goes low, then to the next state when uart_rx_valid goes high
-parameter COMMAND_STALL = 4'd10, ADDR_STALL = 4'd11, RX_HIGH_STALL = 4'd12, RX_LOW_STALL = 4'd13, SIZE_STALL=4'd15;
+parameter COMMAND_STALL = 5'd10, ADDR_STALL = 5'd11, RX_HIGH_STALL = 5'd12, RX_LOW_STALL = 5'd13, SIZE_STALL=5'd15;
+// states for receiving the spram address
+parameter SP_ADDR_HIGH = 5'd16, SP_ADDR_HIGH_STALL = 5'd17, SP_ADDR_LOW = 5'd18, SP_ADDR_LOW_STALL = 5'd19;
 
 //-------------------------------------------------------------------------
 // Outputs: assign outputs based on current states
 //-------------------------------------------------------------------------
 assign mem_addr = CurrentAddr + CurrentAddrOffset;
+assign sp_addr = CurrentSpAddr + CurrentAddrOffset;
 assign rd_en = (CurrentState != WRITE_MEM);
 assign wr_en = (CurrentState == WRITE_MEM);
 assign uart_tx_en = (CurrentState == T_SETUP_HIGH) || (CurrentState == T_SETUP_LOW);
@@ -99,6 +106,8 @@ always @ (posedge clk) begin
     mem_select <= (resetn == 0) ? 3'b0 : NextBlockSelect;
     write_data <= (resetn == 0) ? 16'b0 : NextWriteBuffer;
     warmboot <= (resetn == 0) ? 1'b0 : NextWarmboot;
+    bram_or_spram <= (resetn == 0) ? 1'b0 : NextBRorSP;
+    CurrentSpAddr <= (resetn == 0) ? 14'b0 : NextSpAddr;
 end
 
 //-------------------------------------------------------------------------
@@ -115,6 +124,8 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
     NextBlockSelect = mem_select;
     NextRDorWR = CurrentRDorWR;
     NextWarmboot = warmboot;
+    NextBRorSP = bram_or_spram;
+    NextSpAddr = CurrentSpAddr;
 
     case(CurrentState)
         // receive r/w and the EBR to use
@@ -122,12 +133,13 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
             if (uart_rx_valid == 1) begin
                 NextState <= COMMAND_STALL;
                 NextBlockSelect <= receive_data[MEM_SELECT_BITS-1:0];
+                NextBRorSP <= receive_data[7];
                 NextRDorWR <= receive_data[6];
                 NextWarmboot <= receive_data[5];
             end
         end
         // wait for uart_rx_valid to go low so we can start to wait to receive the next byte
-        COMMAND_STALL: NextState <= (uart_rx_valid == 0) ? ADDR : COMMAND_STALL;
+        COMMAND_STALL: NextState <= (uart_rx_valid == 0) ? ((bram_or_spram == 0) ? ADDR : SP_ADDR_HIGH) : COMMAND_STALL;
         // receive address
         ADDR: begin
             if(uart_rx_valid == 1) begin
@@ -198,6 +210,26 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
             end
         end
 
+        // receive first part of spram address
+        SP_ADDR_HIGH: begin
+            if(uart_rx_valid == 1) begin
+                NextState <= SP_ADDR_HIGH_STALL;
+                NextSpAddr[13:8] <= receive_data[5:0];
+                NextAddrOffset <= 9'b0;
+            end
+        end
+        // wait for uart_rx_valid to go low so we can start to wait to receive the next byte
+        SP_ADDR_HIGH_STALL: NextState <= (uart_rx_valid == 0) ? SP_ADDR_LOW : SP_ADDR_HIGH_STALL;
+        // receive second part of spram address
+        SP_ADDR_LOW: begin
+            if(uart_rx_valid == 1) begin
+                NextState <= SP_ADDR_LOW_STALL;
+                NextSpAddr[7:0] <= receive_data;
+            end
+        end
+        // wait for uart_rx_valid to go low so we can start to wait to receive the next byte
+        SP_ADDR_LOW_STALL: NextState <= (uart_rx_valid == 0) ? SIZE : SP_ADDR_LOW_STALL;
+
         // just in case we end up in an invalid state
         default: begin
             NextState <= COMMAND;
@@ -208,6 +240,8 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
             NextBlockSelect <= mem_select;
             NextRDorWR <= CurrentRDorWR;
             NextWarmboot <= warmboot;
+            NextBRorSP <= bram_or_spram;
+            NextSpAddr <= CurrentSpAddr;
         end
     endcase
 end
