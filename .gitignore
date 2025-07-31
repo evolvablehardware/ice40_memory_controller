@@ -10,3 +10,5 @@
 *.dot
 *.profile
 *.txt
+build/*
+rp_firmware/build/*

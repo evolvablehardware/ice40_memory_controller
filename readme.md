@@ -45,9 +45,16 @@ cd lib/pico-sdk && git submodule update --init
 cd ../../../..
 ```
 
-For linking pico-ice-sdk in firmware_builder:
+For linking pico-ice-sdk in firmware:
 ```bash
-ln -s lib/pico-ice-sdk/ firmware_builder
-ln -s lib/pico-ice-sdk/lib/pico-sdk/ firmware_builder
+ln -s ../lib/pico-ice-sdk/ rp_firmware/pico-ice-sdk
+ln -s ../lib/pico-ice-sdk/lib/pico-sdk/ rp_firmware/pico-sdk
 ```
+
+```bash
+cmake .. [-DPICO_BOARD=pico2_ice]
+```
+
+
+
 

@@ -20,9 +20,23 @@ endif
 
 # program the FPGA with the memory controller
 # run the python code for interfacing with BRAM on the FPGA
+.ONESHELL:
 controller: build/controller.bin
-	iceprog build/controller.bin
-	python3 src_python/shell.py
+	@if [ "$(DEVICE)" = "hx1k" ]; then \
+		iceprog build/controller.bin; \
+		python3 src_python/shell.py; \
+	elif [ "$(DEVICE)" = "up5k" ]; then \
+# TODO: probably a more elegant way of doing this
+		cd rp_firmware
+		mkdir -p build
+		cd build/
+		cmake .. 
+		make
+		cp rp2_ice_bram_controller.uf2 ../../build/
+		cd ../../
+# TODO: use picotool to put the uf2 file on the pi?
+		echo "Generated build/rp2_ice_bram_controller.uf2"
+	fi
 
 # submodules for our memory controller
 HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v
@@ -75,3 +89,4 @@ build:
 # remove all files from the build directory
 clean:
 	rm -rf build/*
+	rm -rf rp_firmware/build/*
