@@ -51,10 +51,6 @@ ln -s ../lib/pico-ice-sdk/ rp_firmware/pico-ice-sdk
 ln -s ../lib/pico-ice-sdk/lib/pico-sdk/ rp_firmware/pico-sdk
 ```
 
-```bash
-cmake .. [-DPICO_BOARD=pico2_ice]
-```
-
 
 
 
