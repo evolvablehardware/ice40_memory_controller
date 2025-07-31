@@ -4,6 +4,7 @@
 # set up device specific params
 DEVICE ?= hx1k
 BRAM   ?= implicit
+PICO   ?= 1
 ifeq ($(DEVICE), hx1k)
 NUM_BLOCKS := 16
 PNR_PARAMS := --hx1k --package tq144
@@ -13,7 +14,15 @@ else ifeq ($(DEVICE), up5k)
 NUM_BLOCKS := 30
 PNR_PARAMS := --up5k --package sg48
 CLOCK_SPEED := 48_000_000
-PCF_FILE := constraints/up5k.pcf
+ifeq ($(PICO), 1)
+PCF_FILE := constraints/up5k_pico_ice.pcf
+UF2_ARG := -DPICO_BOARD=pico_ice
+else ifeq ($(PICO), 2)
+PCF_FILE := constraints/up5k_pico2_ice.pcf
+UF2_ARG := -DPICO_BOARD=pico2_ice
+else
+$(error Pico not supported. Use 1 or 2)
+endif
 else
 $(error Device not supported. Use hx1k or up5k)
 endif
@@ -30,7 +39,7 @@ controller: build/controller.bin
 		cd rp_firmware
 		mkdir -p build
 		cd build/
-		cmake .. 
+		cmake .. $(UF2_ARG)
 		make
 		cp rp2_ice_bram_controller.uf2 ../../build/
 		cd ../../

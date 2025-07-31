@@ -24,6 +24,10 @@
 
 #include <stdio.h>
 
+#ifndef BOARD
+#define BOARD "pico_ice" // Default if not defined
+#endif
+
 // pico-sdk
 #include "pico/stdio.h"
 #include "hardware/irq.h"
@@ -65,7 +69,10 @@ int main(void) {
     ice_cram_close();
 
     // reset state machine
-    int pin = 2;
+    int pin = 3;
+    if (strcmp(BOARD, "pico2_ice") == 0) {
+        pin = 23;
+    }
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_OUT);
     gpio_put(pin, 0);
