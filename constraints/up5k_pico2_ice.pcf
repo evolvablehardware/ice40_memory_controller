@@ -2,7 +2,7 @@
 set_io --warn-no-port clk 35
 set_io --warn-no-port uart_txd  11
 set_io --warn-no-port uart_rxd  9
-set_io --warn-no-port resetn 19 # rp pin 23 
+set_io --warn-no-port resetn 23 # rp pin 25 
 set_io --warn-no-port leds[0] 39
 set_io --warn-no-port leds[1] 40
 set_io --warn-no-port leds[2] 41

@@ -43,14 +43,22 @@
 #include "ice_cram.h"
 #include "ice_led.h"
 
-#define UART_TX_PIN 0
-#define UART_RX_PIN 1
+// #define UART_TX_PIN 0
+// #define UART_RX_PIN 1
 
 uint8_t bitstream[] = {
 #include "bitstream.h"
 };
 
 int main(void) {
+
+    int UART_TX_PIN = 0;
+    int UART_RX_PIN = 1;
+    if (strcmp(BOARD, "pico2_ice") == 0) {
+        UART_TX_PIN = 28;
+        UART_RX_PIN = 29;
+    }
+
     // Enable the UART
     uart_init(uart0, 115200);
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
@@ -71,7 +79,7 @@ int main(void) {
     // reset state machine
     int pin = 3;
     if (strcmp(BOARD, "pico2_ice") == 0) {
-        pin = 23;
+        pin = 25;
     }
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_OUT);
