@@ -124,7 +124,7 @@ uart_tx #(
 bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
 .clk(clk), 
 .rd_en(rd_en), 
-.wr_en(wr_en), 
+.wr_en(wr_en && (bram_or_spram == 0)), 
 .rd_addr({mem_select, ib_addr}), 
 .wr_addr({mem_select, ib_addr}), 
 .data_in(ib_data_in), 
@@ -136,7 +136,7 @@ bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
 
     spram spram_inst (
     .clk(clk),  
-    .wr_en(wr_en), 
+    .wr_en(wr_en && (bram_or_spram == 1)), 
     .cs(mem_select[1:0]),
     .addr(sp_addr), 
     .data_in(ib_data_in), 

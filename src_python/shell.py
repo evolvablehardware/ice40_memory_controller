@@ -30,33 +30,51 @@ config.read('config.ini')
 device = config['DEVICE']['device_type']
 if device == "hx1k":
     num_blocks = 16
+    spram_data_path = None
+    spram_option = ""
 elif device == "up5k":
     num_blocks = 30
+    spram_data_path = "build/spram_data.hex"
+    spram_option = ", (I)nit SPRAM"
 else:
     raise ValueError(f"Device not supported: {device}. Use hx1k or up5k")
 
-mc = MemoryController(config['DEVICE']['fpga_port'], num_blocks=num_blocks)
+mc = MemoryController(config['DEVICE']['fpga_port'], num_blocks=num_blocks, spram_data_path=spram_data_path)
 
 while True:
-    mode = input("(R)ead, (W)rite, (T)riger warmboot, (S)ave current state to file: ").upper()
+    mode = input(f"(R)ead, (W)rite, (T)riger warmboot, (S)ave current state to file{spram_option}: ").upper()
 
     if mode == "R" or mode == "W":
-        # Memory block to read from
-        block = get_int_input("Block", 0, num_blocks-1)
+        # if on the 5k device, ask if we're using spram
+        use_spram = False
+        if device == "up5k":
+            response = input("(B)RAM or (S)PRAM: ").upper()
+            use_spram = response == "S"
 
-        # 8-bit address to read from
-        addr = get_int_input("Address", 0, 255)
+        if use_spram:
+            # Memory block to read from
+            block = get_int_input("Block", 0, 3)
+            # 14-bit address to read from
+            addr = get_int_input("Address", 0, pow(2,14)-1)
+        else:
+            # Memory block to read from
+            block = get_int_input("Block", 0, num_blocks-1)
+            # 8-bit address to read from
+            addr = get_int_input("Address", 0, 255)
 
     if mode == "R":
         # number of 16-byte memory locations to read
-        size = get_int_input("Size", 1, 255 - addr + 1)
-        print(mc.verify(block, addr, size)) #verify calls read
+        max_addr = pow(2,14) if use_spram else 256
+        size = get_int_input("Size", 1, max_addr - addr)
+        print(mc.verify(block, addr, size, spram=use_spram)) #verify calls read
     elif mode == "W":
         data_str = get_hex_input()
-        mc.write(block, addr, data_str)
+        mc.write(block, addr, data_str, spram=use_spram)
         size = int(len(data_str) / 4)
-        mc.verify(block, addr, size)
+        mc.verify(block, addr, size, spram=use_spram)
     elif mode == "T":
         mc.trigger_warmboot()
     elif mode == "S":
         mc.save_to_file()
+    elif mode == "I":
+        mc.init_spram()

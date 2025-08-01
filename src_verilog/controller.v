@@ -210,6 +210,7 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
             end
         end
 
+        // SPRAM
         // receive first part of spram address
         SP_ADDR_HIGH: begin
             if(uart_rx_valid == 1) begin
