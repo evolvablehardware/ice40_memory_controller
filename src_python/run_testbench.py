@@ -34,7 +34,7 @@ elif device == "up5k":
         size = [i+1 for i in range(25)]
         addr = [i for i in range(pow(2,14))]
     else:
-        blocks = [i for i in range(25)]
+        blocks = [i for i in range(30)]
         # avoid overflowing RP2040
         # TODO: remove magic number
         size = [i+1 for i in range(27)]
