@@ -4,7 +4,7 @@ from math import ceil
 from time import time
 
 class MemoryController:
-    def __init__(self, port, num_blocks=16, hex_data_path="build/data.hex", spram_data_path=None):
+    def __init__(self, port, num_blocks=16, hex_data_path="build/data.hex", spram_data_path="build/spram_data.hex"):
         self.__serial = Serial(port, 115200, timeout=1)
         self.__data = []
         self.__data_path = hex_data_path
@@ -16,14 +16,13 @@ class MemoryController:
 
         self.reset()
 
-        if spram_data_path:
-            self.__spram_data = []
-            self.__spram_data_path = spram_data_path
-            raw_spram_data = open(spram_data_path).read().split("\n")
-            for i in range(4):
-                self.__spram_data.append([])
-                for j in range(pow(2,14)):
-                    self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
+        self.__spram_data = []
+        self.__spram_data_path = spram_data_path
+        raw_spram_data = open(spram_data_path).read().split("\n")
+        for i in range(4):
+            self.__spram_data.append([])
+            for j in range(pow(2,14)):
+                self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
 
     def read(self, block, addr, size, spram=False):
         self.__serial.reset_input_buffer()
@@ -147,7 +146,7 @@ class MemoryController:
 
     def init_spram(self):
         print(f"Initializing SPRAM with {self.__spram_data_path}...")
-        chunk_size = 16
+        chunk_size = 24
         num_chunks = ceil(pow(2,14) / chunk_size)
         start = time()
         for i in range(len(self.__spram_data)):
