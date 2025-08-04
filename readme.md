@@ -38,11 +38,11 @@ make BRAM=[implicit/explicit] DEVICE=[hx1k/up5k] PICO=[1/2]
 
 ### Using the project
 There are multiple python files provided for allowing modification of memory from the host PC. 
-- src_python/shell.py provides a shell-like interface for sending reads and writes. It automatically verifies each operation went through correctly
-- src_python/run_testbench.py measures the time and accuracy of the project on a random series of reads and writes. The results can be viewed using src_python/testbench_viz.ipynb, provided `DATA_FILE` is set to the .csv produced by src_python/run_testbench.py.
+- [src_python/shell.py](src_python/shell.py) provides a shell-like interface for sending reads and writes. It automatically verifies each operation went through correctly
+- [src_python/run_testbench.py](src_python/run_testbench.py) measures the time and accuracy of the project on a random series of reads and writes. The results can be viewed using [src_python/testbench_viz.ipynb](src_python/testbench_viz.ipynb), provided `DATA_FILE` is set to the .csv produced by [src_python/run_testbench.py](src_python/run_testbench.py).
 
 #### Configuration
-Both src_python/shell.py and src_python/run_testbench.py make use of config.ini. There are two options that must be specified for both scripts
+Both [src_python/shell.py](src_python/shell.py) and [src_python/run_testbench.py](src_python/run_testbench.py) make use of config.ini. There are two options that must be specified for both scripts
 - fpga_port: the usb port of the FPGA. Likely /dev/ttyUSB0 for hx1k or /dev/ttyACM1 for up5k
 - device_type: either hx1k or up5k
 
@@ -74,4 +74,4 @@ For write operations, the PC should send the bytes to be written to memory, keep
 As each SPRAM block has 16K addresses, we send two bytes for the address of each operation. The rest of the bytes (size and write data) are the same as the BRAM operations.
 
 #### FSM diagram
-A diagram for the state machine on the FPGA can be found in [Memory_Controller_FSM.pdf]
+A diagram for the state machine on the FPGA can be found in [Memory_Controller_FSM.pdf](Memory_Controller_FSM.pdf).
