@@ -19,10 +19,10 @@ USE_SPRAM := -D USE_SPRAM
 DATA := build/data.hex build/spram_data.hex
 ifeq ($(PICO), 1)
 PCF_FILE := constraints/up5k_pico_ice.pcf
-UF2_ARG := -DPICO_BOARD=pico_ice
+UF2_ARG := -DPICO_BOARD=pico_ice -DPICO_PLATFORM=rp2040
 else ifeq ($(PICO), 2)
 PCF_FILE := constraints/up5k_pico2_ice.pcf
-UF2_ARG := -DPICO_BOARD=pico2_ice
+UF2_ARG := -DPICO_BOARD=pico2_ice -DPICO_PLATFORM=rp2350-riscv
 else
 $(error Pico not supported. Use 1 or 2)
 endif
