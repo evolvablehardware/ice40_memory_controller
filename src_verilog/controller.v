@@ -10,7 +10,7 @@
  * @brief Control module connecting UART to the memory interface
  *
  * @tparams:
- *   MEM_SELECT_BITS - the number of bits needed to specify which EBR we want to write/read from
+ *   MEM_SELECT_BITS - the number of bits needed to specify which block we want to write/read from
  *
  * @inputs:
  *   clk            - system clock
@@ -29,6 +29,9 @@
  *   rd_en          - enable reading from BRAM
  *   wr_en          - enable writing to BRAM  
  *   warmboot       - trigger to warmboot 
+ *   leds           - 3 leds used for debugging. Currently tied to CurrentState[2:0]
+ *   bram_or_spram  - 0 if doing a BRAM operation, 1 for SPRAM
+ *   sp_addr        - SPRAM address
  *
  */
 module controller(

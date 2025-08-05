@@ -76,15 +76,6 @@ controller #(.MEM_SELECT_BITS(NUM_BITS)) i_controller(
     .sp_addr(sp_addr)
 );
 
-// //-------------------------------------------------------------------------
-// // Converts built-in 12 MHz clock to desired frequency
-// //-------------------------------------------------------------------------
-// pll pll_instance (
-//     .clock_in(in_clk),
-//     .clock_out(clk),
-//     .locked(pll_lock)
-// );
-
 //-------------------------------------------------------------------------
 // UART receiever
 //-------------------------------------------------------------------------
@@ -121,6 +112,7 @@ uart_tx #(
 //-------------------------------------------------------------------------
 // Memory blocks
 //-------------------------------------------------------------------------
+// only pass one of implicit_bram.v or explicit_bram.v into yosys
 bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
 .clk(clk), 
 .rd_en(rd_en), 
@@ -131,6 +123,9 @@ bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
 .data_out(ib_data_out)
 );
 
+//-------------------------------------------------------------------------
+// SPRAM
+//-------------------------------------------------------------------------
 `ifdef USE_SPRAM
     assign data_out = (bram_or_spram == 0) ? ib_data_out : sp_data_out;
 
