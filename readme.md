@@ -13,6 +13,7 @@ The following python packages are needed
 - pandas
 - matplotlib
 - numpy
+- tqdm
 
 #### Pico-ice-sdk
 To set up pico-ice-sdk and pico-sdk:

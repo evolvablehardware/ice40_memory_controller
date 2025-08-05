@@ -7,6 +7,7 @@ from os import makedirs
 from subprocess import run
 from memory_controller import MemoryController
 import configparser
+from tqdm import tqdm
 
 # parse options
 config = configparser.ConfigParser()
@@ -61,7 +62,7 @@ df['Time (microseconds)'] = 0
 df['Accuracy'] = 0
 
 # recompile and upload to hx1k fpga
-# for the up5k, press SW0 to reset the device and memory back to a known state
+# for the up5k, reboot the device to reset the memory back to a known state
 if device == "hx1k":
     run(["iceprog", "build/controller.bin"])
 
@@ -72,13 +73,13 @@ if use_spram:
     mc.init_spram()
 
 # run tests
-for index, row in df.iterrows():
+for index, row in tqdm(df.iterrows(), total=df.shape[0]):
     # save every 100, just in case
     if index % 100 == 0:
         so_far = df[df['Time (microseconds)'] > 0]
         so_far.to_csv(path, index=False)
 
-    print(f"Running test {index + 1} of {df.shape[0]}")
+    # print(f"Running test {index + 1} of {df.shape[0]}")
     if(row['R/W'] == 'Read'):
         start = time()
         mc.read(row['Block'], row['Address'], row['Size'], spram=use_spram)
