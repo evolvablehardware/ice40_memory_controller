@@ -26,7 +26,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     )
-target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE BOARD="${PICO_BOARD}")
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
 pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)

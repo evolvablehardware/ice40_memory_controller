@@ -22,11 +22,7 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-
-#ifndef BOARD
-#define BOARD "pico_ice" // Default if not defined
-#endif
+ #include <stdio.h>
 
 // pico-sdk
 #include "pico/stdio.h"
@@ -43,18 +39,17 @@
 #include "ice_cram.h"
 #include "ice_led.h"
 
-// #define UART_TX_PIN 0
-// #define UART_RX_PIN 1
+// #define UART_TX_PIN 28
+// #define UART_RX_PIN 29
 
 uint8_t bitstream[] = {
 #include "bitstream.h"
 };
 
 int main(void) {
-
     int UART_TX_PIN = 0;
     int UART_RX_PIN = 1;
-    if (strcmp(BOARD, "pico2_ice") == 0) {
+    if (strcmp(PICO_BOARD, "pico2_ice") == 0) {
         UART_TX_PIN = 28;
         UART_RX_PIN = 29;
     }
@@ -78,7 +73,7 @@ int main(void) {
 
     // reset state machine
     int pin = 3;
-    if (strcmp(BOARD, "pico2_ice") == 0) {
+    if (strcmp(PICO_BOARD, "pico2_ice") == 0) {
         pin = 25;
     }
     gpio_init(pin);

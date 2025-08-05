@@ -22,7 +22,7 @@ PCF_FILE := constraints/up5k_pico_ice.pcf
 UF2_ARG := -DPICO_BOARD=pico_ice -DPICO_PLATFORM=rp2040
 else ifeq ($(PICO), 2)
 PCF_FILE := constraints/up5k_pico2_ice.pcf
-UF2_ARG := -DPICO_BOARD=pico2_ice -DPICO_PLATFORM=rp2350-riscv
+UF2_ARG := -DPICO_BOARD=pico2_ice -DPICO_PLATFORM=rp2350
 else
 $(error Pico not supported. Use 1 or 2)
 endif
@@ -40,6 +40,7 @@ controller: build/controller.bin
 	elif [ "$(DEVICE)" = "up5k" ]; then \
 # TODO: probably a more elegant way of doing this
 		cd rp_firmware
+		rm -rf build
 		mkdir -p build
 		cd build/
 		cmake .. $(UF2_ARG)
