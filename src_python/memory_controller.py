@@ -17,13 +17,14 @@ class MemoryController:
 
         self.reset()
 
-        self.__spram_data = []
-        self.__spram_data_path = spram_data_path
-        raw_spram_data = open(spram_data_path).read().split("\n")
-        for i in range(4):
-            self.__spram_data.append([])
-            for j in range(pow(2,14)):
-                self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
+        if spram_data_path is not None:
+            self.__spram_data = []
+            self.__spram_data_path = spram_data_path
+            raw_spram_data = open(spram_data_path).read().split("\n")
+            for i in range(4):
+                self.__spram_data.append([])
+                for j in range(pow(2,14)):
+                    self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
 
     def read(self, block, addr, size, spram=False):
         self.__serial.reset_input_buffer()
@@ -169,7 +170,7 @@ class MemoryController:
         t = 0
         seed(0)
         while True:
-            print(f"Attempt {t+1} at reading sucessfully")
+            print(f"Attempt {t+1} at reading successfully")
             
             block = randint(0, 15)
             addr = randint(0, 255)
@@ -178,4 +179,4 @@ class MemoryController:
                 break
 
             t += 1
-        print(f"Performed sucessful read. Device is synced")
+        print(f"Performed successful read. Device is synced")

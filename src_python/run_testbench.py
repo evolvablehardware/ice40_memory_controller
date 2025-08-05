@@ -25,7 +25,7 @@ addr = [i for i in range(256)]
 
 if device == "hx1k":
     blocks = [i for i in range(16)]
-    size = [i+1 for i in range(256)]
+    size = [i+1 for i in range(25)]
 elif device == "up5k":
     if use_spram:
         blocks = [i for i in range(4)]
@@ -38,7 +38,7 @@ elif device == "up5k":
         blocks = [i for i in range(30)]
         # avoid overflowing RP2040
         # TODO: remove magic number
-        size = [i+1 for i in range(27)]
+        size = [i+1 for i in range(25)]
 
 all_combinations = list(itertools.product(rw, blocks, addr, size))
 df = pd.DataFrame(all_combinations, columns=['R/W', 'Block', 'Address', 'Size'])

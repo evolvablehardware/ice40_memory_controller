@@ -10,13 +10,11 @@ NUM_BLOCKS := 16
 PNR_PARAMS := --hx1k --package tq144
 CLOCK_SPEED := 12_000_000
 PCF_FILE := constraints/hx1k.pcf
-DATA := data_files
 else ifeq ($(DEVICE), up5k)
 NUM_BLOCKS := 30
 PNR_PARAMS := --up5k --package sg48
 CLOCK_SPEED := 48_000_000
 USE_SPRAM := -D USE_SPRAM
-DATA := data_files build/spram_data.hex
 ifeq ($(PICO), 1)
 PCF_FILE := constraints/up5k_pico_ice.pcf
 UF2_ARG := -DPICO_BOARD=pico_ice -DPICO_PLATFORM=rp2040
@@ -55,7 +53,7 @@ controller: build/controller.bin
 HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v src_verilog/spram.v
 BRAM_INSTS := src_verilog/explicit_bram.v src_verilog/implicit_bram.v
 
-build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/integrated_memory_controller.v $(DATA) 
+build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/integrated_memory_controller.v data_files build/spram_data.hex
 # synthesis
 # -p : run the following yosys subcommands
 # -q : only print warnings and errors
