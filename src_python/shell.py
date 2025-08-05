@@ -42,7 +42,7 @@ else:
 mc = MemoryController(config['DEVICE']['fpga_port'], num_blocks=num_blocks, spram_data_path=spram_data_path)
 
 while True:
-    mode = input(f"(R)ead, (W)rite, (T)riger warmboot, (S)ave current state to file{spram_option}: ").upper()
+    mode = input(f"(R)ead, (W)rite, (T)riger warmboot, (S)ave current state to file{spram_option}, Sync (D)evice: ").upper()
 
     if mode == "R" or mode == "W":
         # if on the 5k device, ask if we're using spram
@@ -78,3 +78,5 @@ while True:
         mc.save_to_file()
     elif mode == "I":
         mc.init_spram()
+    elif mode == "D":
+        mc.read_until_match()

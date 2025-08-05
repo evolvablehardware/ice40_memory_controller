@@ -2,6 +2,7 @@ from serial import Serial
 from time import sleep
 from math import ceil
 from time import time
+from random import randint, seed
 
 class MemoryController:
     def __init__(self, port, num_blocks=16, hex_data_path="build/data.hex", spram_data_path="build/spram_data.hex"):
@@ -160,3 +161,21 @@ class MemoryController:
                     exit(1)
         end = time()
         print(f"Done. Time taken: {end-start} seconds.")
+
+    # solves weird issue where the fpga is not in state 0 whenever the serial connection is init
+    # TODO: find better solution
+    def read_until_match(self):
+        print("Performing random reads until device syncs")
+        t = 0
+        seed(0)
+        while True:
+            print(f"Attempt {t+1} at reading sucessfully")
+            
+            block = randint(0, 15)
+            addr = randint(0, 255)
+            size = randint(1, min(10, 256-addr))
+            if self.verify(0, 0, size, display_output=False, spram=False):
+                break
+
+            t += 1
+        print(f"Performed sucessful read. Device is synced")

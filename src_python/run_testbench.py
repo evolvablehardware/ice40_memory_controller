@@ -67,6 +67,7 @@ if device == "hx1k":
 
 # set up memory controller
 mc = MemoryController(port, num_blocks=len(blocks))
+mc.read_until_match()
 if use_spram:
     mc.init_spram()
 
