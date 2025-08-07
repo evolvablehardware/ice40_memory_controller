@@ -52,11 +52,10 @@ controller: build/full_demo.bin
 # submodules for our memory controller
 HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v src_verilog/spram.v src_verilog/uart_controller.v
 BRAM_INSTS := src_verilog/explicit_bram.v src_verilog/implicit_bram.v
-WARMBOOT_BINS := build/warmboot_demo_1.bin
 
 # setup warmbooting
-build/full_demo.bin: build/controller.bin warmboot_demos
-	icemulti -p0 build/controller.bin $(WARMBOOT_BINS) -o build/full_demo.bin
+build/full_demo.bin: build/controller.bin build/warmboot_demo.bin
+	icemulti -p0 build/controller.bin build/warmboot_demo.bin -o build/full_demo.bin
 
 build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/top.v data_files build/spram_data.hex build/generated_rams.vh
 # synthesis
@@ -107,16 +106,14 @@ build/generated_rams.vh:
 
 FORCE:
 
-warmboot_demos: src_verilog/warmboot_demo.v build/generated_rams.vh
-	for i in `seq 1 1`; do \
-		yosys -q -D LEDS_ADDRESS=$$i -D BRAM_INCLUDE_FILE="\"build/generated_rams.vh\"" \
-		-p "synth_ice40 -json build/warmboot_demo_$$i.json" \
-		src_verilog/explicit_bram.v src_verilog/warmboot_demo.v; \
+build/warmboot_demo.bin: src_verilog/warmboot_demo.v build/generated_rams.vh
+	yosys -q -D BRAM_INCLUDE_FILE="\"build/generated_rams.vh\"" \
+	-p "synth_ice40 -json build/warmboot_demo.json" \
+	src_verilog/explicit_bram.v src_verilog/warmboot_demo.v \
 
-		nextpnr-ice40 -q $(PNR_PARAMS) --asc build/warmboot_demo_$$i.asc --json build/warmboot_demo_$$i.json --pcf $(PCF_FILE);\
+	nextpnr-ice40 -q $(PNR_PARAMS) --asc build/warmboot_demo.asc --json build/warmboot_demo.json --pcf $(PCF_FILE)
 
-		icepack build/warmboot_demo_$$i.asc build/warmboot_demo_$$i.bin -n;\
-	done; \
+	icepack build/warmboot_demo.asc build/warmboot_demo.bin -n;\
 
 # make the build directory if it does not already exist
 build:
