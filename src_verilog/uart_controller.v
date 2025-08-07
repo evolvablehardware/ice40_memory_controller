@@ -30,6 +30,7 @@ wire        uart_tx_en;
 
 // wires for warmbooting 
 wire boot;
+wire [1:0] boot_select;
 
 //-------------------------------------------------------------------------
 // FSM controller between UART modules and Memory modules
@@ -49,6 +50,7 @@ controller #(.MEM_SELECT_BITS(MEM_SELECT_BITS)) i_controller(
     .rd_en(rd_en),
     .wr_en(wr_en),
     .warmboot(boot),
+    .warmboot_select(boot_select),
     .leds(leds),
     .bram_or_spram(bram_or_spram),
     .sp_addr(sp_addr)
@@ -91,8 +93,8 @@ uart_tx #(
 // Warmboot primitive
 //-------------------------------------------------------------------------
 SB_WARMBOOT warmboot (
-.S1(1'b0),
-.S0(1'b1),
+.S1(boot_select[1]),
+.S0(boot_select[0]),
 .BOOT(boot)
 );
 

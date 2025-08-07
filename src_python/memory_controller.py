@@ -31,6 +31,7 @@ class MemoryController:
             self.__spram_data = []
             self.__spram_data_path = spram_data_path
             raw_spram_data = open(spram_data_path).read().split("\n")
+            invalid_spram_file = False
             for i in range(4):
                 self.__spram_data.append([])
                 for j in range(pow(2,14)):
@@ -38,6 +39,9 @@ class MemoryController:
                         self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
                     except IndexError:
                         self.__data[i].append("0000")
+                        invalid_spram_file = True
+            if invalid_spram_file:
+                print("WARNING: SPRAM file did not have enough lines. Assuming missing locations are 0000")
 
     def read(self, block, addr, size, spram=False):
         self.__serial.reset_input_buffer()
@@ -121,21 +125,11 @@ class MemoryController:
                 print(f"FAILED\nExpected {d[block][addr:addr+size]}\n")
             return False
         
-    def trigger_warmboot(self):
-        trigger_num = 32 #bit 5
+    def trigger_warmboot(self, image):
+        trigger_num = (1 << 5) + image # bit 5 is 1, bits 1 and 0 are the image number
         trigger_byte = trigger_num.to_bytes(1, 'big')
         self.__serial.write(trigger_byte)
         self.__serial.flush()
-        self.reset()
-
-        r = self.__serial.read(2*4096)
-        ha = r.hex()
-        with open("warmboot_output.hex", 'w') as f:
-            for i in range(16):
-                for j in range(0,256):
-                    if 4*(256*i + j) < len(ha):
-                        f.write(f"{ha[4*(256*i + j): 4*(256*i + j+ 1)]}\n")
-        print(f"Read {len(r)} bytes into warmboot_output.hex")
         self.reset()
         
         

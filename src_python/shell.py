@@ -5,7 +5,7 @@ import configparser
 def get_int_input(param, lower_bound, upper_bound):
     while True:
         try: 
-            val = int(input(f"{param}: "))
+            val = int(input(f"{param} ({lower_bound} to {upper_bound}): "))
         except ValueError:
             print(f"{param} must be an int from {lower_bound} to {upper_bound}.")
             continue
@@ -73,7 +73,8 @@ while True:
         size = int(len(data_str) / 4)
         mc.verify(block, addr, size, spram=use_spram)
     elif mode == "T":
-        mc.trigger_warmboot()
+        image = get_int_input("Image", 0, 3)
+        mc.trigger_warmboot(image)
     elif mode == "S":
         mc.save_to_file()
     elif mode == "I":

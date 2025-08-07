@@ -49,6 +49,7 @@ module controller(
     output wire rd_en,
     output wire wr_en,
     output reg warmboot,
+    output reg [1:0] warmboot_select,
     output wire [2:0] leds,
     output reg bram_or_spram,
     output wire [13:0] sp_addr
@@ -67,6 +68,7 @@ reg CurrentRDorWR, NextRDorWR;
 reg [MEM_SELECT_BITS-1:0] NextBlockSelect;
 reg [15:0] NextWriteBuffer;
 reg NextWarmboot;
+reg [1:0] NextWarmbootImage;
 reg NextBRorSP;
 reg [13:0] CurrentSpAddr, NextSpAddr;
 
@@ -109,6 +111,7 @@ always @ (posedge clk) begin
     mem_select <= (resetn == 0) ? 3'b0 : NextBlockSelect;
     write_data <= (resetn == 0) ? 16'b0 : NextWriteBuffer;
     warmboot <= (resetn == 0) ? 1'b0 : NextWarmboot;
+    warmboot_select <= (resetn == 0) ? 2'b0 : NextWarmbootImage;
     bram_or_spram <= (resetn == 0) ? 1'b0 : NextBRorSP;
     CurrentSpAddr <= (resetn == 0) ? 14'b0 : NextSpAddr;
 end
@@ -127,6 +130,7 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
     NextBlockSelect = mem_select;
     NextRDorWR = CurrentRDorWR;
     NextWarmboot = warmboot;
+    NextWarmbootImage = warmboot_select;
     NextBRorSP = bram_or_spram;
     NextSpAddr = CurrentSpAddr;
 
@@ -139,6 +143,7 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
                 NextBRorSP <= receive_data[7];
                 NextRDorWR <= receive_data[6];
                 NextWarmboot <= receive_data[5];
+                NextWarmbootImage <= receive_data[1:0];
             end
         end
         // wait for uart_rx_valid to go low so we can start to wait to receive the next byte
@@ -244,6 +249,7 @@ always @ (CurrentState or uart_rx_valid or uart_tx_busy) begin
             NextBlockSelect <= mem_select;
             NextRDorWR <= CurrentRDorWR;
             NextWarmboot <= warmboot;
+            NextWarmbootImage <= warmboot_select;
             NextBRorSP <= bram_or_spram;
             NextSpAddr <= CurrentSpAddr;
         end

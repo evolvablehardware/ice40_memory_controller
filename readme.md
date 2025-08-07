@@ -61,6 +61,7 @@ The first byte of each operation specifies what type of operation to do and whic
 | 6   | 0 for read, 1 for write       |
 | 5   | 1 if warmbooting, 0 otherwise |
 | 4:0 | Block to read/write from      |
+| 1:0 | Warmboot image select         |
 
 #### BRAM
 For BRAM operations, the next byte to be sent is the address that reading and writing starts from. Each block of BRAM has 256 possible addresses and a width of 16 bits. 
