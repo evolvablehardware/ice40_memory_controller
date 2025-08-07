@@ -13,7 +13,10 @@ class MemoryController:
         for i in range(num_blocks):
             self.__data.append([])
             for j in range(256):
-                self.__data[i].append(raw_data[i*256 + j])
+                try:
+                    self.__data[i].append(raw_data[i*256 + j])
+                except IndexError:
+                    self.__data[i].append("0000")
 
         self.reset()
 
@@ -24,7 +27,10 @@ class MemoryController:
             for i in range(4):
                 self.__spram_data.append([])
                 for j in range(pow(2,14)):
-                    self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
+                    try:
+                        self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
+                    except IndexError:
+                        self.__data[i].append("0000")
 
     def read(self, block, addr, size, spram=False):
         self.__serial.reset_input_buffer()

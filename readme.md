@@ -2,7 +2,7 @@ A verilog project for reading and writing to BRAM for the iCE40 hx1k and up5k de
 
 ### Setup
 #### Dependencies
-A yosys, nextpnr-ice40, and Project Icestorm installation is needed. Other required dependencies can be installed with:
+A yosys, nextpnr-ice40, and Project Icestorm installation is needed. An installation guide for those tools can be found [here](https://prjicestorm.readthedocs.io/en/latest/overview.html#where-are-the-tools-how-to-install). Other required dependencies can be installed with:
 ```bash
 sudo apt install libusb-1.0-0 gcc-arm-none-eabi
 ```
