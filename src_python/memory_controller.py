@@ -7,9 +7,14 @@ from random import randint, seed
 class MemoryController:
     def __init__(self, port, num_blocks=16, hex_data_path="build/data.hex", spram_data_path="build/spram_data.hex"):
         self.__serial = Serial(port, 115200, timeout=1)
+
+        self.reset()
+
+        # set up bram
         self.__data = []
         self.__data_path = hex_data_path
         raw_data = open(hex_data_path).read().split("\n")
+        invalid_bram_file = False
         for i in range(num_blocks):
             self.__data.append([])
             for j in range(256):
@@ -17,9 +22,11 @@ class MemoryController:
                     self.__data[i].append(raw_data[i*256 + j])
                 except IndexError:
                     self.__data[i].append("0000")
+                    invalid_bram_file = True
+        if invalid_bram_file:
+            print("WARNING: BRAM file did not have enough lines. Assuming missing locations are 0000")
 
-        self.reset()
-
+        # set up spram
         if spram_data_path is not None:
             self.__spram_data = []
             self.__spram_data_path = spram_data_path

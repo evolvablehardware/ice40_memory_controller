@@ -1,8 +1,8 @@
 # indicate these are not file related, and instead are scripts
-.PHONY: controller clean data_files
+.PHONY: controller clean data_files 
 
 # set up device specific params
-DEVICE ?= hx1k
+DEVICE ?= up5k
 BRAM   ?= implicit
 PICO   ?= 1
 ifeq ($(DEVICE), hx1k)
@@ -80,7 +80,7 @@ build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/integrat
 # convert ASCII bitstream to binary
 	icepack build/controller.asc build/controller.bin
 
-data_files:
+data_files: FORCE
 	@if [ "$(BRAM)" = "implicit" ]; then \
 		icebram -g -s 0 16 $$((256 * $(NUM_BLOCKS))) > build/data.hex; \
 	elif [ "$(BRAM)" = "explicit" ]; then \
@@ -95,8 +95,10 @@ data_files:
 		done; \
 	fi
 
-build/spram_data.hex:
+build/spram_data.hex: FORCE
 	icebram -g -s 0 16 $$((4 * 16384)) > build/spram_data.hex
+
+FORCE:
 
 # make the build directory if it does not already exist
 build:
