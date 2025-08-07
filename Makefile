@@ -50,10 +50,10 @@ controller: build/controller.bin
 	fi
 
 # submodules for our memory controller
-HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v src_verilog/spram.v
+HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v src_verilog/spram.v src_verilog/uart_controller.v
 BRAM_INSTS := src_verilog/explicit_bram.v src_verilog/implicit_bram.v
 
-build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/integrated_memory_controller.v data_files build/spram_data.hex
+build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/top.v data_files build/spram_data.hex
 # synthesis
 # -p : run the following yosys subcommands
 # -q : only print warnings and errors
@@ -61,12 +61,12 @@ build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/integrat
 	if [ "$(BRAM)" = "implicit" ]; then \
 		yosys -q -D NUM_BLOCKS_PARAM=$(NUM_BLOCKS) -D CLOCK_SPEED=$(CLOCK_SPEED) $(USE_SPRAM) \
 		-p 'synth_ice40 -json build/controller.json' \
-		$(HELPER_VERILOG) src_verilog/implicit_bram.v src_verilog/integrated_memory_controller.v; \
+		$(HELPER_VERILOG) src_verilog/implicit_bram.v src_verilog/top.v; \
 	elif [ "$(BRAM)" = "explicit" ]; then \
 		python3 src_python/generate_explicit_bram.py --n $(NUM_BLOCKS) --d $(DEVICE) --o build/controller_generated_rams.vh; \
 		yosys -q -D NUM_BLOCKS_PARAM=$(NUM_BLOCKS) -D CLOCK_SPEED=$(CLOCK_SPEED) $(USE_SPRAM) \
 		-D BRAM_INCLUDE_FILE="\"build/controller_generated_rams.vh\"" -p 'synth_ice40 -json build/controller.json' \
-		$(HELPER_VERILOG) src_verilog/explicit_bram.v src_verilog/integrated_memory_controller.v; \
+		$(HELPER_VERILOG) src_verilog/explicit_bram.v src_verilog/top.v; \
 	fi
 
 # place and route
@@ -107,4 +107,4 @@ build:
 # remove all files from the build directory
 clean:
 	rm -rf build/*
-	# rm -rf rp_firmware/build/*
+	rm -rf rp_firmware/build/*

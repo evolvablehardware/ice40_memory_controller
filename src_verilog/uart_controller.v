@@ -1,27 +1,22 @@
-`ifndef NUM_BLOCKS_PARAM
-    `define NUM_BLOCKS_PARAM 16
-`endif
-
-`ifndef CLOCK_SPEED
-    `define CLOCK_SPEED 12_000_000
-`endif
-
-module integrated_memory_controller (
-input               clk     , // Top level system clock input.
-input   wire        uart_rxd, // UART Recieve pin.
-input resetn,
-output  wire        uart_txd,  // UART transmit pin.
-output wire [2:0] leds
+module uart_controller(
+    input wire clk,
+    input wire uart_rxd,
+    input wire uart_txd,
+    input wire resetn,
+    input wire [15:0] mem_out,
+    output reg [MEM_SELECT_BITS-1:0] mem_select,
+    output wire [7:0] mem_addr,
+    output reg [15:0] mem_in,
+    output wire rd_en,
+    output wire wr_en,
+    output wire [2:0] leds,
+    output reg bram_or_spram,
+    output wire [13:0] sp_addr
 );
-
-// Clock frequency in hertz.
-parameter CLK_HZ = `CLOCK_SPEED;
+parameter MEM_SELECT_BITS = 5;
+parameter CLK_HZ = 48_000_000;
 parameter BIT_RATE =   115200;
 parameter PAYLOAD_BITS = 8;
-
-// Number of EBRs to initialize
-parameter NUM_BLOCKS = `NUM_BLOCKS_PARAM;
-parameter NUM_BITS = $clog2(NUM_BLOCKS);
 
 // wires for receiver
 wire [PAYLOAD_BITS-1:0]  uart_rx_data;
@@ -33,41 +28,24 @@ wire        uart_tx_busy;
 wire [PAYLOAD_BITS-1:0]  uart_tx_data;
 wire        uart_tx_en;
 
-// wires for BRAM
-wire [NUM_BITS-1:0] mem_select;
-wire [7:0] ib_addr;
-wire [15:0] ib_data_out;
-wire [15:0] ib_data_in;
-wire rd_en;
-wire wr_en;
-
-wire [13:0] sp_addr;
-wire [15:0] sp_data_out;
-
-wire bram_or_spram;
-wire [15:0] data_out;
-
-`ifndef USE_SPRAM
-    assign data_out = ib_data_out;
-`endif
-
+// wires for warmbooting 
 wire boot;
 
 //-------------------------------------------------------------------------
 // FSM controller between UART modules and Memory modules
 //-------------------------------------------------------------------------
-controller #(.MEM_SELECT_BITS(NUM_BITS)) i_controller(
+controller #(.MEM_SELECT_BITS(MEM_SELECT_BITS)) i_controller(
     .clk(clk),
     .resetn(resetn),
     .uart_rx_valid(uart_rx_valid),
     .receive_data(uart_rx_data),
     .uart_tx_busy(uart_tx_busy),
-    .mem_out(data_out),
+    .mem_out(mem_out),
     .uart_tx_en(uart_tx_en),
     .uart_tx_data(uart_tx_data),
     .mem_select(mem_select),
-    .mem_addr(ib_addr),
-    .write_data(ib_data_in),
+    .mem_addr(mem_addr),
+    .write_data(mem_in),
     .rd_en(rd_en),
     .wr_en(wr_en),
     .warmboot(boot),
@@ -110,36 +88,6 @@ uart_tx #(
 );
 
 //-------------------------------------------------------------------------
-// Memory blocks
-//-------------------------------------------------------------------------
-// only pass one of implicit_bram.v or explicit_bram.v into yosys
-bram #(.NUM_BLOCKS(NUM_BLOCKS)) bram_inst (
-.clk(clk), 
-.rd_en(rd_en), 
-.wr_en(wr_en && (bram_or_spram == 0)), 
-.rd_addr({mem_select, ib_addr}), 
-.wr_addr({mem_select, ib_addr}), 
-.data_in(ib_data_in), 
-.data_out(ib_data_out)
-);
-
-//-------------------------------------------------------------------------
-// SPRAM
-//-------------------------------------------------------------------------
-`ifdef USE_SPRAM
-    assign data_out = (bram_or_spram == 0) ? ib_data_out : sp_data_out;
-
-    spram spram_inst (
-    .clk(clk),  
-    .wr_en(wr_en && (bram_or_spram == 1)), 
-    .cs(mem_select[1:0]),
-    .addr(sp_addr), 
-    .data_in(ib_data_in), 
-    .data_out(sp_data_out)
-    );
-`endif
-
-//-------------------------------------------------------------------------
 // Warmboot primitive
 //-------------------------------------------------------------------------
 SB_WARMBOOT warmboot (
@@ -147,7 +95,5 @@ SB_WARMBOOT warmboot (
 .S0(1'b1),
 .BOOT(boot)
 );
-
-
 
 endmodule
