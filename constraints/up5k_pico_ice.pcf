@@ -1,8 +1,8 @@
 # https://github.com/tinyvision-ai-inc/pico-ice-sdk/blob/main/rtl/pico_ice.pcf
-set_io --warn-no-port clk 35
-set_io --warn-no-port uart_txd  25
-set_io --warn-no-port uart_rxd  27
-set_io --warn-no-port resetn 19 # rp pin 3 
-set_io --warn-no-port leds[0] 39
-set_io --warn-no-port leds[1] 40
-set_io --warn-no-port leds[2] 41
+set_io -nowarn clk 35
+set_io -nowarn uart_txd  25
+set_io -nowarn uart_rxd  27
+set_io -nowarn resetn 19 # rp pin 3 
+set_io -nowarn leds[0] 39
+set_io -nowarn leds[1] 40
+set_io -nowarn leds[2] 41

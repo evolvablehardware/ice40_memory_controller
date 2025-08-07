@@ -32,6 +32,6 @@ pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
 
 # set(VERILOG ${CMAKE_CURRENT_LIST_DIR}/top.v)
 add_custom_target(bitstream.h
-    COMMAND python3 ${CMAKE_CURRENT_LIST_DIR}/bin2header.py ${CMAKE_CURRENT_LIST_DIR}/../build/controller.bin > bitstream.h
+    COMMAND python3 ${CMAKE_CURRENT_LIST_DIR}/bin2header.py ${CMAKE_CURRENT_LIST_DIR}/../build/full_demo.bin > bitstream.h
     )
 add_dependencies(${CMAKE_PROJECT_NAME} bitstream.h)

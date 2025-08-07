@@ -10,38 +10,10 @@ class MemoryController:
 
         self.reset()
 
-        # set up bram
-        self.__data = []
         self.__data_path = hex_data_path
-        raw_data = open(hex_data_path).read().split("\n")
-        invalid_bram_file = False
-        for i in range(num_blocks):
-            self.__data.append([])
-            for j in range(256):
-                try:
-                    self.__data[i].append(raw_data[i*256 + j])
-                except IndexError:
-                    self.__data[i].append("0000")
-                    invalid_bram_file = True
-        if invalid_bram_file:
-            print("WARNING: BRAM file did not have enough lines. Assuming missing locations are 0000")
-
-        # set up spram
-        if spram_data_path is not None:
-            self.__spram_data = []
-            self.__spram_data_path = spram_data_path
-            raw_spram_data = open(spram_data_path).read().split("\n")
-            invalid_spram_file = False
-            for i in range(4):
-                self.__spram_data.append([])
-                for j in range(pow(2,14)):
-                    try:
-                        self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
-                    except IndexError:
-                        self.__data[i].append("0000")
-                        invalid_spram_file = True
-            if invalid_spram_file:
-                print("WARNING: SPRAM file did not have enough lines. Assuming missing locations are 0000")
+        self.__spram_data_path = spram_data_path
+        self.__num_blocks = num_blocks
+        self.init_local_copy_of_data()
 
     def read(self, block, addr, size, spram=False):
         self.__serial.reset_input_buffer()
@@ -130,8 +102,7 @@ class MemoryController:
         trigger_byte = trigger_num.to_bytes(1, 'big')
         self.__serial.write(trigger_byte)
         self.__serial.flush()
-        self.reset()
-        
+        self.init_local_copy_of_data()
         
     def reset(self):
         self.__serial.setRTS(True)
@@ -176,14 +147,48 @@ class MemoryController:
         print("Performing random reads until device syncs")
         t = 0
         seed(0)
-        while True:
+        while t < 10:
             print(f"Attempt {t+1} at reading successfully")
             
             block = randint(0, 15)
             addr = randint(0, 255)
             size = randint(1, min(10, 256-addr))
-            if self.verify(0, 0, size, display_output=False, spram=False):
-                break
+            if self.verify(block, addr, size, display_output=False, spram=False):
+                print(f"Performed successful read. Device is synced")
+                return
 
             t += 1
-        print(f"Performed successful read. Device is synced")
+        print(f"Device unable to sync. Please reprogram")
+
+    def init_local_copy_of_data(self):
+        # set up bram
+        self.__data = []
+        self.__data_path = self.__data_path
+        raw_data = open(self.__data_path).read().split("\n")
+        invalid_bram_file = False
+        for i in range(self.__num_blocks):
+            self.__data.append([])
+            for j in range(256):
+                try:
+                    self.__data[i].append(raw_data[i*256 + j])
+                except IndexError:
+                    self.__data[i].append("0000")
+                    invalid_bram_file = True
+        if invalid_bram_file:
+            print("WARNING: BRAM file did not have enough lines. Assuming missing locations are 0000")
+
+        # set up spram
+        if self.__spram_data_path is not None:
+            self.__spram_data = []
+            raw_spram_data = open(self.__spram_data_path).read().split("\n")
+            invalid_spram_file = False
+            for i in range(4):
+                self.__spram_data.append([])
+                for j in range(pow(2,14)):
+                    try:
+                        self.__spram_data[i].append(raw_spram_data[i*pow(2,14) + j])
+                    except IndexError:
+                        self.__spram_data[i].append("0000")
+                        invalid_spram_file = True
+            if invalid_spram_file:
+                print("WARNING: SPRAM file did not have enough lines. Assuming missing locations are 0000")
