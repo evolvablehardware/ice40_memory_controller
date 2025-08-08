@@ -52,7 +52,8 @@ module controller(
     output reg [1:0] warmboot_select,
     output wire [2:0] leds,
     output reg bram_or_spram,
-    output wire [13:0] sp_addr
+    output wire [13:0] sp_addr,
+    output wire active
 );
 parameter MEM_SELECT_BITS = 4;
 
@@ -98,6 +99,7 @@ assign wr_en = (CurrentState == WRITE_MEM);
 assign uart_tx_en = (CurrentState == T_SETUP_HIGH) || (CurrentState == T_SETUP_LOW);
 assign uart_tx_data = (CurrentState == T_SETUP_HIGH) ? mem_out[15:8] : mem_out[7:0];
 assign leds = CurrentState[2:0];
+assign active = (CurrentState != COMMAND);
 
 //-------------------------------------------------------------------------
 // Update current state and handle resets

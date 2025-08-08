@@ -45,7 +45,8 @@ module uart_controller(
     output wire wr_en,
     output wire [2:0] leds,
     output reg bram_or_spram,
-    output wire [13:0] sp_addr
+    output wire [13:0] sp_addr,
+    output wire active
 );
 parameter MEM_SELECT_BITS = 5;
 parameter CLK_HZ = 48_000_000;
@@ -87,7 +88,8 @@ controller #(.MEM_SELECT_BITS(MEM_SELECT_BITS)) i_controller(
     .warmboot_select(boot_select),
     .leds(leds),
     .bram_or_spram(bram_or_spram),
-    .sp_addr(sp_addr)
+    .sp_addr(sp_addr),
+    .active(active)
 );
 
 //-------------------------------------------------------------------------

@@ -80,3 +80,9 @@ A diagram for the state machine on the FPGA can be found in [Memory_Controller_F
 
 ### Warmbooting
 Note that warmbooting is currently not fully supported on the HW side. See branch [warmboot_demo](https://github.com/evolvablehardware/ice40_memory_controller/tree/warmboot_demo) for a working implementation for the HX1K devices. The demo is currently not supported on the UP5K devices, for unknown reasons.
+
+### Integrating with a Neural Network
+Currently, in top.v, the memory controll lines are connected directly to the uart_controller module. However, if another module wishes to control the memory, it can do when the `active` output of the uart_controller is low. One possible way doing this could look something like
+```verilog
+assign mem_addr = (controller_active == 0) ? neural_network_mem_addr : controller_mem_addr; 
+```

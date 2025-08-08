@@ -39,6 +39,8 @@ wire [15:0] data_out;
 
 assign data_out = (bram_or_spram == 0) ? ib_data_out : sp_data_out;
 
+wire active;
+
 //-------------------------------------------------------------------------
 // Controller + UART
 //-------------------------------------------------------------------------
@@ -60,7 +62,8 @@ uart_controller #(
     .wr_en(wr_en),
     .leds(leds),
     .bram_or_spram(bram_or_spram),
-    .sp_addr(sp_addr)
+    .sp_addr(sp_addr),
+    .active(active)
 );
 
 //-------------------------------------------------------------------------
