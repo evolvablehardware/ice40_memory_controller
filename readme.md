@@ -84,5 +84,10 @@ Note that warmbooting is currently not fully supported on the HW side. See branc
 ### Integrating with a Neural Network
 Currently, in top.v, the memory controll lines are connected directly to the uart_controller module. However, if another module wishes to control the memory, it can do when the `active` output of the uart_controller is low. One possible way doing this could look something like
 ```verilog
-assign mem_addr = (controller_active == 0) ? neural_network_mem_addr : controller_mem_addr; 
+assign rd_addr = (controller_active == 0) ? neural_network_mem_addr : controller_mem_addr; 
 ```
+Where rd_addr is connected to BRAM, controller_active and controller_mem_addr are the respective outputs of uart_controller, annd neural_network_mem_addr is the memeory address the neural network wishes to read from. Similar logic will need to be applied to mem_select, rd_addr, wr_addr, data_in, rd_en, wr_en, bram_or_spram, and sp_addr, as necessary.
+
+See [src_verilog/top.v](https://github.com/evolvablehardware/ice40_memory_controller/blob/simple_integration/src_verilog/top.v) in branch [simple_integration](https://github.com/evolvablehardware/ice40_memory_controller/tree/simple_integration) for a demo of this. In this demo, BRAM block 0, address 2 is 5 more than the value stored at BRAM block 0 address 1. 
+
+Currently, all the BRAM blocks are in the bram module, which only supports reading and writing to one block at a time. This will need to be changed if we want to read and write with multiple blocks at the same time. This could be ecccomplished by moving individual blocks of BRAM to the top level, or by adding more inputs and outputs to the bram module. The same goes for the spram module. 
