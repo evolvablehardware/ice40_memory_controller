@@ -25,7 +25,7 @@ addr = [i for i in range(256)]
 
 if device == "hx1k":
     blocks = [i for i in range(16)]
-    size = [i+1 for i in range(25)]
+    size = [i+1 for i in range(256)]
 elif device == "up5k":
     if use_spram:
         blocks = [i for i in range(4)]
