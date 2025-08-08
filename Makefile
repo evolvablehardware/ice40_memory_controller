@@ -50,7 +50,7 @@ controller: build/controller.bin
 	fi
 
 # submodules for our memory controller
-HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v src_verilog/spram.v src_verilog/uart_controller.v
+HELPER_VERILOG := src_verilog/receiver.v src_verilog/transmiter.v src_verilog/controller.v src_verilog/spram.v src_verilog/uart_controller.v src_verilog/adder.v
 BRAM_INSTS := src_verilog/explicit_bram.v src_verilog/implicit_bram.v
 
 build/controller.bin: build $(HELPER_VERILOG) $(BRAM_INSTS) src_verilog/top.v data_files build/spram_data.hex
