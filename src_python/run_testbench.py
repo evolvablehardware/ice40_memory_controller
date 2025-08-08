@@ -67,7 +67,7 @@ if device == "hx1k":
     run(["iceprog", "build/controller.bin"])
 
 # set up memory controller
-mc = MemoryController(port, num_blocks=len(blocks))
+mc = MemoryController(port, num_blocks= 30 if device == "up5k" else 16, spram_data_path="build/spram_data.hex")
 mc.read_until_match()
 if use_spram:
     mc.init_spram()

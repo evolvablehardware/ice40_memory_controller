@@ -104,7 +104,7 @@ class MemoryController:
     def verify(self, block, addr, size, display_output = True, spram=False):
         b = self.read(block, addr, size, spram=spram)
         if display_output:
-            print(f"Verifying {size} locations starting at address {addr}")
+            print(f"Verifying {size} locations starting at address {addr} of block {block}")
             print(f"Received {b}")
 
         # make sure there is no extra data left on the serial line
@@ -159,7 +159,7 @@ class MemoryController:
         num_chunks = ceil(pow(2,14) / chunk_size)
         start = time()
         for i in range(len(self.__spram_data)):
-            print(f"Initializing block {i+1} of 4")
+            print(f"Initializing block {i} of 3")
             for j in range(num_chunks):
                 data = self.__spram_data[i][chunk_size*j:chunk_size*(j+1)]
                 data_str = "".join(data)
