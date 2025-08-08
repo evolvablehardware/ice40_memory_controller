@@ -77,3 +77,6 @@ As each SPRAM block has 16K addresses, we send two bytes for the address of each
 
 #### FSM diagram
 A diagram for the state machine on the FPGA can be found in [Memory_Controller_FSM.pdf](Memory_Controller_FSM.pdf).
+
+### Warmbooting
+Note that warmbooting is currently not fully supported on the HW side. See branch [warmboot_demo](https://github.com/evolvablehardware/ice40_memory_controller/tree/warmboot_demo) for a working implementation for the HX1K devices. The demo is currently not supported on the UP5K devices, for unknown reasons.

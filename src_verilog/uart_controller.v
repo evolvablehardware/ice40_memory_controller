@@ -1,3 +1,37 @@
+/*********************************************************************
+ * Module: uart_controller
+ * Author: Allyn Loyd
+ * Date: 2025-08-08
+ * Description: Connects the FSM, uart modules, and warmboot primitive together. All modules not related to the NN.
+ *********************************************************************/
+
+ /**
+ * @brief Connects the FSM, uart modules, and warmboot primitive together. All modules not related to the NN.
+ *
+ * @tparams:
+ *   MEM_SELECT_BITS - the number of bits needed to specify which block we want to write/read from
+ *   CLK_HZ          - the clock speed of the FPGA
+ *   BIT_RATE        - buad rate for UART
+ *   PAYLOAD_BITS    - number of bits to send per transmission
+ *
+ * @inputs:
+ *   clk            - system clock
+ *   uart_rxd       - UART receiver line
+ *   uart_txd       - UART transmitter line
+ *   resetn         - active low reset signal
+ *   mem_out        - the data read from BRAM
+ *
+ * @outputs:
+ *   mem_select     - the EBR to read from/write to
+ *   mem_addr       - the BRAM address to read from/write to
+ *   mem_in         - the data to write to BRAM
+ *   rd_en          - enable reading from BRAM
+ *   wr_en          - enable writing to BRAM  
+ *   leds           - 3 leds used for debugging. Currently tied to CurrentState[2:0]
+ *   bram_or_spram  - 0 if doing a BRAM operation, 1 for SPRAM
+ *   sp_addr        - SPRAM address
+ *
+ */
 module uart_controller(
     input wire clk,
     input wire uart_rxd,
