@@ -99,7 +99,7 @@ assign wr_en = (CurrentState == WRITE_MEM);
 assign uart_tx_en = (CurrentState == T_SETUP_HIGH) || (CurrentState == T_SETUP_LOW);
 assign uart_tx_data = (CurrentState == T_SETUP_HIGH) ? mem_out[15:8] : mem_out[7:0];
 assign leds = CurrentState[2:0];
-assign active = (CurrentState != COMMAND);
+assign active = (CurrentState != COMMAND) || (resetn == 0);
 
 //-------------------------------------------------------------------------
 // Update current state and handle resets

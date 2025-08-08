@@ -176,14 +176,15 @@ class MemoryController:
         print("Performing random reads until device syncs")
         t = 0
         seed(0)
-        while True:
+        while t < 10:
             print(f"Attempt {t+1} at reading successfully")
             
             block = randint(0, 15)
             addr = randint(0, 255)
             size = randint(1, min(10, 256-addr))
-            if self.verify(0, 0, size, display_output=False, spram=False):
-                break
+            if self.verify(block, addr, size, display_output=False, spram=False):
+                print(f"Performed successful read. Device is synced")
+                return
 
             t += 1
-        print(f"Performed successful read. Device is synced")
+        print(f"Unable to sync device. Please reprogram.")

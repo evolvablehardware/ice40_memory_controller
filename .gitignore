@@ -11,3 +11,4 @@
 *.profile
 build/*
 rp_firmware/build/*
+config.ini
