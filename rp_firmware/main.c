@@ -23,6 +23,7 @@
  */
 
  #include <stdio.h>
+ #include <math.h>
 
 // pico-sdk
 #include "pico/stdio.h"
@@ -38,6 +39,7 @@
 #include "ice_fpga.h"
 #include "ice_cram.h"
 #include "ice_led.h"
+#include "ice_flash.h"
 
 // #define UART_TX_PIN 28
 // #define UART_RX_PIN 29
@@ -59,6 +61,25 @@ int main(void) {
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 
+    // program fpga
+    ice_flash_init(FPGA_DATA.bus, ICE_FLASH_BAUDRATE);
+    ice_flash_erase_chip(FPGA_DATA.bus);
+    double bitstream_length = sizeof(bitstream) / sizeof(bitstream[0]);
+    int num_pages = ceil(bitstream_length / ICE_FLASH_PAGE_SIZE);
+    for(int i = 0; i < num_pages; i++) {
+        // set up page data to write
+        uint8_t page[ICE_FLASH_PAGE_SIZE];
+        for(int j = 0; j < ICE_FLASH_PAGE_SIZE; j++) {
+            int index = i * ICE_FLASH_PAGE_SIZE + j;
+            if (index < bitstream_length) {
+                page[j] = bitstream[index];
+            }
+        }
+
+        // write page to flash
+        ice_flash_program_page(FPGA_DATA.bus, i * ICE_FLASH_PAGE_SIZE, page);
+    }
+
     // Configure the piping as configured in <tusb_config.h>
     ice_usb_init();
 
@@ -66,10 +87,10 @@ int main(void) {
 	ice_fpga_init(FPGA_DATA, 48);
     ice_fpga_start(FPGA_DATA);
 
-    // Write the whole bitstream to the FPGA CRAM
-    ice_cram_open(FPGA_DATA);
-    ice_cram_write(bitstream, sizeof(bitstream));
-    ice_cram_close();
+    // // Write the whole bitstream to the FPGA CRAM
+    // ice_cram_open(FPGA_DATA);
+    // ice_cram_write(bitstream, sizeof(bitstream));
+    // ice_cram_close();
 
     // reset state machine
     int pin = 3;
